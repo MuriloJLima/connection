@@ -24,7 +24,7 @@ export default function Categorias({ navigation }) {
     const [usuarioId, setUsuarioId] = useState()
     const [data, setData] = useState([]);
 
-    const [nome, setNome] = useState()
+    const [nome, setNome] = useState(null)
     const [descricao, setDescricao] = useState(null)
     const [valor, setValor] = useState(null)
 
@@ -62,7 +62,7 @@ export default function Categorias({ navigation }) {
     }
 
 
-    const dispinivel = Number(data).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    // const dispinivel = Number(data).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 
     async function sendForm() {
@@ -87,12 +87,16 @@ export default function Categorias({ navigation }) {
                 'Categoria criada com sucesso!',
                 [
                     {
-                      text: 'OK',
-                      onPress: () => navigation.navigate('Home'),
+                        text: 'OK',
+                          onPress: () => navigation.navigate('Categorias'),
                     },
-                  ]
+                ]
             );
-        }else{
+            setNome('')
+            setDescricao('')
+            setValor('')
+            fetchData()
+        } else {
             setDisplay(json.erros)
             setTimeout(() => {
                 setDisplay('')
@@ -122,7 +126,7 @@ export default function Categorias({ navigation }) {
 
             <View style={adcCatStyle.Valor}>
                 <Text style={adcCatStyle.txtVal1}>Valor Disponível:</Text>
-                <Text style={adcCatStyle.txtVal3}>{dispinivel}</Text>
+                <Text style={adcCatStyle.txtVal3}>{data}</Text>
             </View>
 
             <KeyboardAvoidingView
@@ -142,6 +146,7 @@ export default function Categorias({ navigation }) {
                     placeholder="Nome da categoria"
                     keyboardType="default"
                     underlineColorAndroid="transparent"
+                    value={nome}
                     onChangeText={text => setNome(text)} />
 
                 <TextInput
@@ -150,6 +155,7 @@ export default function Categorias({ navigation }) {
                     maxLength={100}
                     keyboardType="default"
                     underlineColorAndroid="transparent"
+                    value={descricao}
                     onChangeText={text => setDescricao(text)} />
 
                 <KeyboardAvoidingView
@@ -160,6 +166,7 @@ export default function Categorias({ navigation }) {
                         placeholder="Valor"
                         keyboardType="default"
                         underlineColorAndroid="transparent"
+                        value={valor}
                         onChangeText={text => setValor(text)} />
 
                     <View style={adcCatStyle.btn}>

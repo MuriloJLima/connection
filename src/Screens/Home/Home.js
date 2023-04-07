@@ -24,22 +24,10 @@ import {
 export default function Home({ navigation }) {
 
     //estados que armazenam os dados
-    const [usuarioId, setUsuarioId] = useState()
-    const [usuario, setUsuario] = useState()
+    const [usuario, setUsuario] = useState([])
     const [data, setData] = useState(null);
 
     //função que requisita id do usuário
-    useEffect(() => {
-        getUsuarioId();
-    }, []);
-
-    async function getUsuarioId() {
-        let response = await AsyncStorage.getItem('usuarioData')
-        let json = JSON.parse(response)
-        setUsuarioId(json.id)
-    }
-
-    //função que requisita nome do usuário
     useEffect(() => {
         getUsuario();
     }, []);
@@ -47,9 +35,13 @@ export default function Home({ navigation }) {
     async function getUsuario() {
         let response = await AsyncStorage.getItem('usuarioData')
         let json = JSON.parse(response)
-        setUsuario(json.nome)
+        setUsuario(json)
     }
 
+
+    useEffect(() => {
+        fetchData();
+    }, [getUsuario]);
 
     //função que requisita renda / orçamento do usuário
     const fetchData = async () => {
@@ -60,7 +52,7 @@ export default function Home({ navigation }) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                usuarioId: usuarioId
+                usuarioId: usuario.id
             }),
         })
         let json = await response.json()
@@ -69,7 +61,7 @@ export default function Home({ navigation }) {
 
     useEffect(() => {
         fetchData();
-    }, [usuarioId]);
+    }, [usuario]);
 
     //transformando orçamento do usuário em valor monetário
     const renda =  Number(data).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -108,7 +100,7 @@ export default function Home({ navigation }) {
 
                 <Text
                     style={homeStyle.txt2}
-                >Olá, {usuario}</Text>
+                >Olá, {usuario.nome}</Text>
 
                 <Text
                     style={homeStyle.txt3}
@@ -201,9 +193,8 @@ export default function Home({ navigation }) {
 
                 <ScrollView
                 style={homeStyle.components}>
-                    <Card />
-                    <Card/>
-                    <Card/>
+                    <Card usuario={usuario.id}/>
+                    
                 </ScrollView>
                 
                 <TouchableOpacity

@@ -1,27 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-export default function Card() {
+import config from '../../../config/config.json'
+import { FlatList } from 'react-native-gesture-handler';
+
+export default function Card({ usuario }) {
     const [isActive, setIsActive] = useState(false);
+    const [carregando, setCarregando] = useState(true)
+    const [data, setData] = useState([]);
+
+
+
+    const usuarioId = usuario || ''
+
+    useEffect(() => {
+        fetchData();
+    }, [usuarioId]);
+
+
+    const fetchData = async () => {
+        let response = await fetch(`${config.urlRoot}/categoria/listar`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                usuarioId: usuarioId
+            }),
+        })
+        let json = await response.json()
+        setData(json)
+        setCarregando(false)
+    }
+
 
     const toggleCard = () => {
         setIsActive(!isActive);
     };
 
     return (
-        <TouchableOpacity style={styles.card} onPress={toggleCard}>
-            <View style={styles.upContainer}>
-                <Text style={styles.title}>Título do Card</Text>
-                <Text style={styles.value}>R$ 0,00</Text>
-            </View>
-            {isActive && (
-                <View style={styles.cardContent}>
-                    <Text style={styles.text}>
-                        Texto do card que será exibido após o clique. 
-                    </Text>
-                </View>
-            )}
-        </TouchableOpacity>
+
+        <View>
+            {
+                carregando ? <Text>
+                    Você ainda não possui nenhuma categoria!
+                </Text> : (
+                    <FlatList
+                        data={data}
+                        keyExtractor={({ id }, index) => id}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity style={styles.card} onPress={toggleCard}>
+                                <View style={styles.upContainer}>
+                                    <Text style={styles.title}>{item.nome}</Text>
+                                    <Text style={styles.value}>{item.valorDisponivel}</Text>
+                                </View>
+                                {isActive && (
+                                    <View style={styles.cardContent}>
+                                        <Text style={styles.text}>
+                                            {item.descricao}
+                                        </Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        )}
+                    />
+                )
+            }
+        </View>
+
+
     );
 }
 
