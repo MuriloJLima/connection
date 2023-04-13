@@ -30,8 +30,14 @@ export default function Card({ usuario }) {
             }),
         })
         let json = await response.json()
-        setData(json)
-        setCarregando(false)
+
+        if (json === '') {
+            setCarregando(false)
+        } else {
+            setData(json)
+            setCarregando(false)
+        }
+
     }
 
 
@@ -53,7 +59,7 @@ export default function Card({ usuario }) {
                             <TouchableOpacity style={styles.card} onPress={toggleCard}>
                                 <View style={styles.upContainer}>
                                     <Text style={styles.title}>{item.nome}</Text>
-                                    <Text style={styles.value}>{item.valorDisponivel}</Text>
+                                    <Text style={styles.value}>{item.valor}</Text>
                                 </View>
                                 {isActive && (
                                     <View style={styles.cardContent}>

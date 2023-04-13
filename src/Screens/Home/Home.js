@@ -17,7 +17,6 @@ import {
     SafeAreaView,
     StatusBar,
     Image,
-    TextInput,
     ScrollView,
 } from "react-native";
 
@@ -25,7 +24,10 @@ export default function Home({ navigation }) {
 
     //estados que armazenam os dados
     const [usuario, setUsuario] = useState([])
-    const [data, setData] = useState(null);
+    const [orcamento, setOrcamento] = useState('');
+    const [soma, setSoma] = useState('');
+
+    moment.locale('pt-br');
 
     //função que requisita id do usuário
     useEffect(() => {
@@ -39,32 +41,36 @@ export default function Home({ navigation }) {
     }
 
 
-    useEffect(() => {
-        fetchData();
-    }, [getUsuario]);
-
-    //função que requisita renda / orçamento do usuário
-    const fetchData = async () => {
-        let response = await fetch(`${config.urlRoot}/orcamento/listar`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                usuarioId: usuario.id
-            }),
-        })
-        let json = await response.json()
-        setData(json.valor)
-    }
 
     useEffect(() => {
         fetchData();
     }, [usuario]);
 
-    //transformando orçamento do usuário em valor monetário
-    const renda =  Number(data).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    //função que requisita renda / orçamento do usuário
+
+
+    const fetchData = async () => {
+
+        let response = await fetch(`${config.urlRoot}/orcamento/listar`, {
+
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+
+            body: JSON.stringify({
+                usuarioId: usuario.id,
+                mes: moment().format('M'),
+                ano: moment().format('YYYY')
+            }),
+        })
+        let json = await response.json()
+        setOrcamento(json.orcamento.valor)
+        setSoma(json.gastos)
+    }
+
+    const disponivel = orcamento - soma
 
 
     // Esses Consts trás o mes diacordo com as datas em tempo real
@@ -113,14 +119,11 @@ export default function Home({ navigation }) {
 
                 <Text
                     style={homeStyle.rendaTxt2}
-                >{renda}</Text>
-                <Text
-                    style={homeStyle.rendaTxt3}
-                >R$</Text>
+                >{orcamento}</Text>
 
                 <Text
                     style={homeStyle.rendaTxt4}
-                >xxx,xx</Text>
+                >{disponivel}</Text>
             </View>
 
             <View
@@ -192,11 +195,11 @@ export default function Home({ navigation }) {
                 }>Categorias</Text>
 
                 <ScrollView
-                style={homeStyle.components}>
-                    <Card usuario={usuario.id}/>
-                    
+                    style={homeStyle.components}>
+                    <Card usuario={usuario.id} />
+
                 </ScrollView>
-                
+
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Categorias')}
                     style={homeStyle.btnCat}
